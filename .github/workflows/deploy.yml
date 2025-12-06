@@ -1,18 +1,21 @@
-# This is a basic workflow to help you get started with Actions
-name: Ansible Galaxy
+---
+name: 'Publish latest release to Ansible Galaxy'
 
 on:
-  release:
-    types:
-      - published
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch: {}
 
 jobs:
-  deploy:
-    runs-on: ubuntu-latest
+  build:
+    name: 'Publish to Ansible Galaxy'
+    runs-on: 'ubuntu-latest'
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Deploy the collection
-      uses: artis3n/ansible_galaxy_collection@v2
-      with:
-        api_key: ${{ secrets.GALAXY_API_KEY }}
+      - name: 'checkout'
+        uses: 'actions/checkout@v2'
+      - name: 'galaxy'
+        uses: 'robertdebock/galaxy-action@1.2.0'
+        with:
+          galaxy_api_key: '${{ secrets.GALAXY_API_KEY }}'
+          git_branch: 'main'
