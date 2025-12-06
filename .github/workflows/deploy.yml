@@ -1,6 +1,10 @@
 ---
 name: 'Publish latest release to Ansible Galaxy'
 
+defaults:
+  run:
+    working-directory: ./scripts
+
 on:
   push:
     branches:
