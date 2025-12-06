@@ -9,10 +9,12 @@ on:
 jobs:
   build:
     name: 'Publish to Ansible Galaxy'
-    runs-on: 'docker'
+    runs-on: 'ubuntu:latest'
+    container:
+        image: docker://ghcr.io/ansible/creator-ee:latest
     defaults:
-       run:
-          working-directory: /
+        run:
+           working-directory: /
     steps:
       - name: Ansible Publish
         uses: ansible/ansible-publish-action@v1.0.0
