@@ -1,10 +1,6 @@
 ---
 name: 'Publish latest release to Ansible Galaxy'
 
-defaults:
-  run:
-    working-directory: /
-
 on:
   push:
     branches:
@@ -14,6 +10,9 @@ jobs:
   build:
     name: 'Publish to Ansible Galaxy'
     runs-on: 'ubuntu-latest'
+    defaults:
+       run:
+          working-directory: /
     steps:
       - name: Ansible Publish
         uses: ansible/ansible-publish-action@v1.0.0
