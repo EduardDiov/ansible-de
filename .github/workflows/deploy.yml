@@ -15,7 +15,7 @@ jobs:
     name: 'Publish to Ansible Galaxy'
     runs-on: 'ubuntu-latest'
     steps:
-      - name: Build & Publish collection to Ansible Galaxy
-        uses: qsypoq/ansible-galaxy-publish-action@v0.0.3
+      - name: Ansible Publish
+        uses: ansible/ansible-publish-action@v1.0.0
         with:
-          galaxy_token: '${{ secrets.GALAXY_API_KEY }}'
+          api_key: '${{ secrets.GALAXY_API_KEY }}'
