@@ -15,5 +15,4 @@ jobs:
       - name: 'galaxy'
         uses: 'ansible/ansible-publish-action@v1.0.0'
         with:
-          galaxy_api_key: '${{ secrets.GALAXY_API_KEY }}'
-          git_branch: 'main'
+          api_key: '${{ secrets.GALAXY_API_KEY }}'
