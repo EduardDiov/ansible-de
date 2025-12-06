@@ -1,0 +1,14 @@
+---
+- name: Gather package facts
+  hosts: all
+  gather_facts: false # Optional, but can speed up if you only need package facts
+
+  tasks:
+    - name: Gather package facts
+      ansible.builtin.package_facts:
+        manager: auto # Automatically detect package manager (apt in this case)
+
+    - name: Verify if 'qemu-guest-agent' package is installed
+      ansible.builtin.assert:
+        that: "'qemu-guest-agent' in ansible_facts.packages"
+        msg: "qemu-guest-agent package is not installed!"

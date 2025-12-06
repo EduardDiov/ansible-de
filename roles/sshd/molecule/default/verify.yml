@@ -1,0 +1,62 @@
+---
+- name: Check for specific sshd_config setting
+  hosts: all
+  tasks:
+    - name: Check if SSHd config file exists
+      stat:
+        path: /etc/ssh/sshd_config
+      register: sshd_config
+
+    - name: Verify SSHd config file exists
+      assert:
+        that:
+          - sshd_config.stat.exists
+          - sshd_config.stat.isreg
+
+    - name: Check SSHd configuration syntax
+      command: sshd -t -f /etc/ssh/sshd_config
+      register: sshd_syntax_check
+      changed_when: false
+
+    - name: Verify SSHd configuration syntax is valid
+      assert:
+        that:
+          - sshd_syntax_check.rc == 0
+        fail_msg: "SSHd configuration syntax is invalid"
+
+    - name: Check specific SSHd settings
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: "^{{ item.key }}"
+        line: "{{ item.key }} {{ item.value }}"
+      with_items:
+        - { key: "KbdInteractiveAuthentication", value: "no" }
+        - { key: "PermitRootLogin", value: "no" }
+        - { key: "PasswordAuthentication", value: "no" }
+      check_mode: yes
+      register: sshd_settings
+
+    - name: Verify SSHd settings are correct
+      assert:
+        that:
+          - not item.changed
+        fail_msg: "SSHd setting {{ item.item.key }} is not configured correctly"
+      with_items: "{{ sshd_settings.results }}"
+
+    - name: Check if SSHd service is running and enabled
+      ansible.builtin.service:
+        name: sshd
+      register: sshd_service
+
+    - name: Assert SSHd service is running
+      ansible.builtin.assert:
+        that:
+          - sshd_service.status.ActiveState == 'active'
+          - sshd_service.status.UnitFileState == 'enabled'
+
+    - name: Test SSH connectivity
+      wait_for:
+        host: localhost
+        port: 22
+        state: started
+        timeout: 10

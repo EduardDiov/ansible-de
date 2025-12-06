@@ -1,0 +1,51 @@
+# Use the base image specified in molecule.yml
+{% if item.registry is defined %}
+FROM {{ item.registry.url }}/{{ item.image }}
+{% else %}
+FROM {{ item.image }}
+{% endif %}
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && \
+    apt-get install -y \
+    systemd \
+    openssh-server \
+    sudo \
+    curl \
+    wget \
+    vim \
+    net-tools \
+    iproute2 \
+    iputils-ping \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Remove unnecessary getty and udev targets that result in high CPU usage when using
+# multiple containers with Molecule (https://github.com/ansible/molecule/issues/1104)
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/systemd*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/sysinit.target.wants/systemd-tmpfiles-setup* \
+    /lib/systemd/system/systemd-update-utmp* \
+    /lib/systemd/system/getty.target
+
+# Set up systemd as init system
+STOPSIGNAL SIGRTMIN+3
+
+# Enable SSH service
+RUN systemctl enable ssh
+
+# Create necessary directories for systemd
+RUN mkdir -p /var/run/sshd && \
+    mkdir -p /run/systemd/system \
+    chmod 0755 /var/run/sshd \
+    chmod 0755 /run/systemd/system
+
+VOLUME ["/sys/fs/cgroup", "/tmp", "/run"]
+
+EXPOSE {{ ssh_port }}
+
+CMD ["/lib/systemd/systemd", "log-level=info", "unit=sysinit.target"]
