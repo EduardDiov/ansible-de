@@ -3,7 +3,7 @@ name: 'Publish latest release to Ansible Galaxy'
 
 defaults:
   run:
-    working-directory: ../../
+    working-directory: /
 
 on:
   push:
@@ -19,4 +19,3 @@ jobs:
         uses: ansible/ansible-publish-action@v1.0.0
         with:
           api_key: '${{ secrets.GALAXY_API_KEY }}'
-          src_path: ./
